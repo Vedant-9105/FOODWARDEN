@@ -1,0 +1,601 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Food Hygiene Checker</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --primary: #4361ee;
+        --secondary: #3f37c9;
+        --success: #4cc9f0;
+        --light: #f8f9fa;
+        --dark: #212529;
+        --danger: #f72585;
+        --warning: #f8961e;
+        --info: #4895ef;
+    }
+    
+    body {
+        font-family: 'Poppins', sans-serif;
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+    
+    .main-container {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+    
+    .header-card {
+        background: linear-gradient(to right, var(--primary), var(--secondary));
+        border-radius: 20px;
+        padding: 30px;
+        color: white;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .header-card::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 70%);
+        transform: rotate(30deg);
+    }
+    
+    .header-card h2 {
+        font-weight: 700;
+        font-size: 2.5rem;
+        margin-bottom: 10px;
+    }
+    
+    .header-card p {
+        font-size: 1.1rem;
+        opacity: 0.9;
+    }
+    
+    .content-card {
+        background: white;
+        border-radius: 20px;
+        padding: 30px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        margin-bottom: 30px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .content-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0,0,0,0.12);
+    }
+    
+    .section-title {
+        color: var(--primary);
+        font-weight: 600;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #e9ecef;
+        position: relative;
+    }
+    
+    .section-title::after {
+        content: '';
+        position: absolute;
+        bottom: -2px;
+        left: 0;
+        width: 60px;
+        height: 2px;
+        background: var(--success);
+    }
+    
+    .form-control, .form-select {
+        border-radius: 10px;
+        padding: 12px 15px;
+        border: 1px solid #e1e5ee;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+    }
+    
+    .btn-custom {
+        border-radius: 50px;
+        padding: 12px 30px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .btn-primary {
+        background: linear-gradient(to right, var(--primary), var(--secondary));
+    }
+    
+    .btn-primary:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 7px 15px rgba(67, 97, 238, 0.3);
+    }
+    
+    .btn-success {
+        background: linear-gradient(to right, #4cc9f0, #4895ef);
+    }
+    
+    .btn-success:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 7px 15px rgba(76, 201, 240, 0.3);
+    }
+    
+    .btn-danger {
+        background: linear-gradient(to right, var(--danger), #b5179e);
+    }
+    
+    .btn-danger:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 7px 15px rgba(247, 37, 133, 0.3);
+    }
+    
+    .webcam-box {
+        background: #f8f9fa;
+        border-radius: 15px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+    
+    .webcam-box video {
+        border-radius: 10px;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .webcam-box video:hover {
+        transform: scale(1.02);
+    }
+    
+    .prediction-box {
+        background: linear-gradient(to right, #f8f9fa, #e9ecef);
+        border-radius: 15px;
+        padding: 25px;
+        margin-top: 30px;
+        animation: fadeIn 0.8s ease;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .prediction-image {
+        max-height: 300px;
+        border-radius: 15px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        transition: transform 0.5s ease;
+    }
+    
+    .prediction-image:hover {
+        transform: scale(1.03);
+    }
+    
+    .prediction-badge {
+        font-size: 1.5rem;
+        padding: 10px 20px;
+        border-radius: 50px;
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { transform: scale(1); }
+        50% { transform: scale(1.05); }
+        100% { transform: scale(1); }
+    }
+    
+    .confidence-meter {
+        height: 20px;
+        border-radius: 10px;
+        background: #e9ecef;
+        overflow: hidden;
+        margin: 15px 0;
+    }
+    
+    .confidence-fill {
+        height: 100%;
+        border-radius: 10px;
+        background: linear-gradient(to right, #4cc9f0, #4895ef);
+        transition: width 1.5s ease;
+    }
+    
+    .question-label {
+        font-weight: 600;
+        color: var(--dark);
+        margin-bottom: 8px;
+        display: block;
+    }
+    
+    .list-group-item {
+        border: none;
+        padding: 12px 15px;
+        border-radius: 10px !important;
+        margin-bottom: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .list-group-item:hover {
+        background: #f8f9fa;
+        transform: translateX(5px);
+    }
+    
+    .floating-icon {
+        position: absolute;
+        font-size: 2rem;
+        opacity: 0.1;
+        z-index: 0;
+    }
+    
+    .icon-1 { top: 20px; right: 30px; }
+    .icon-2 { bottom: 20px; left: 30px; }
+    .icon-3 { top: 50%; left: 10%; transform: translateY(-50%); }
+    
+    .feature-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+        font-size: 1.5rem;
+        background: rgba(67, 97, 238, 0.1);
+        color: var(--primary);
+    }
+    
+    .feature-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .feature-text h5 {
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+    
+    .feature-text p {
+        margin-bottom: 0;
+        color: #b0daff;
+    }
+    
+    .upload-area {
+        border: 2px dashed #dee2e6;
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        margin-bottom: 20px;
+    }
+    
+    .upload-area:hover {
+        border-color: var(--primary);
+        background: rgba(67, 97, 238, 0.05);
+    }
+    
+    .upload-area i {
+        font-size: 3rem;
+        color: var(--primary);
+        margin-bottom: 15px;
+    }
+    
+    .progress-bar {
+        height: 8px;
+        border-radius: 4px;
+        background: #e9ecef;
+        overflow: hidden;
+        margin: 15px 0;
+    }
+    
+    .progress-fill {
+        height: 100%;
+        border-radius: 4px;
+        background: linear-gradient(to right, var(--primary), var(--secondary));
+        width: 0;
+        transition: width 1s ease;
+    }
+    
+    @media (max-width: 768px) {
+        .header-card h2 {
+            font-size: 2rem;
+        }
+        
+        .content-card {
+            padding: 20px;
+        }
+        
+        .floating-icon {
+            display: none;
+        }
+    }
+</style>
+</head>
+<body>
+<div class="main-container">
+    <!-- Header Section -->
+    <div class="header-card text-center position-relative">
+        <i class="floating-icon fas fa-utensils icon-1"></i>
+        <i class="floating-icon fas fa-shield-alt icon-2"></i>
+        <i class="floating-icon fas fa-stethoscope icon-3"></i>
+        
+        <h2><i class="fas fa-utensils me-2"></i> AI Food Hygiene Checker</h2>
+        <p class="mb-4">Upload a food image or take a live photo, answer a few quick questions, and let AI check the hygiene quality!</p>
+        
+        <div class="d-flex justify-content-center flex-wrap">
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-camera"></i>
+                </div>
+                <div class="feature-text">
+                    <h5>Image Analysis</h5>
+                    <p>AI-powered food inspection</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <div class="feature-text">
+                    <h5>Hygiene Assessment</h5>
+                    <p>Comprehensive quality check</p>
+                </div>
+            </div>
+            <div class="feature-item">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <div class="feature-text">
+                    <h5>Detailed Report</h5>
+                    <p>Actionable insights</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Button -->
+    <div class="d-flex justify-content-end mb-4">
+        <a href="{{ url_for('dashboard') }}" class="btn btn-primary btn-custom">
+            <i class="fas fa-chart-bar me-2"></i> Dashboard
+        </a>
+    </div>
+
+    <!-- Main Form Card -->
+    <div class="content-card">
+        <form method="POST" enctype="multipart/form-data" id="hygieneForm">
+            <!-- Image Upload Section -->
+            <h4 class="section-title"><i class="fas fa-cloud-upload-alt me-2"></i> Food Image</h4>
+            
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="upload-area" onclick="document.getElementById('fileInput').click()">
+                        <i class="fas fa-file-upload"></i>
+                        <h5>Upload Food Image</h5>
+                        <p class="text-muted">Click to browse or drag & drop</p>
+                        <input type="file" name="file" id="fileInput" class="d-none" onchange="updateFileName(this)">
+                    </div>
+                    <div id="fileName" class="text-center text-muted mb-3"></div>
+                </div>
+                
+                <div class="col-md-6">
+                    <div class="webcam-box text-center">
+                        <h5 class="fw-bold mb-3"><i class="fas fa-camera me-2"></i> Live Capture</h5>
+                        <video id="video" width="100%" height="240" autoplay class="mb-3 rounded"></video>
+                        <button type="button" id="snap" class="btn btn-sm btn-primary btn-custom">
+                            <i class="fas fa-camera me-1"></i> Capture Image
+                        </button>
+                        <canvas id="canvas" width="320" height="240" style="display:none;"></canvas>
+                        <input type="hidden" name="webcam_image" id="webcam_image">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Shop Details Section -->
+            <h4 class="section-title mt-5"><i class="fas fa-store me-2"></i> Shop Details</h4>
+            
+            <div class="row">
+                <div class="col-md-4 mb-3">
+                    <label class="question-label">Shop Name</label>
+                    <input type="text" name="shop_name" class="form-control" placeholder="Enter shop name" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="question-label">Shop Address</label>
+                    <input type="text" name="shop_address" class="form-control" placeholder="Enter address" required>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <label class="question-label">City</label>
+                    <input type="text" name="city" class="form-control" placeholder="Enter city" required>
+                </div>
+            </div>
+
+            <!-- Questionnaire Section -->
+            <h4 class="section-title mt-5"><i class="fas fa-clipboard-list me-2"></i> Hygiene Questionnaire</h4>
+            
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="question-label">How clean is the surrounding?</label>
+                    <select name="surroundings" class="form-select" required>
+                        <option value="">Select cleanliness level</option>
+                        <option value="Good">Good</option>
+                        <option value="Moderate">Moderate</option>
+                        <option value="Poor">Poor</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="question-label">Are utensils clean?</label>
+                    <select name="utensils" class="form-select" required>
+                        <option value="">Select option</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="question-label">Is the food covered?</label>
+                    <select name="covered_food" class="form-select" required>
+                        <option value="">Select option</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+                <div class="col-md-6 mb-4">
+                    <label class="question-label">Are others around following hygiene?</label>
+                    <select name="others_hygiene" class="form-select" required>
+                        <option value="">Select option</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Buttons -->
+            <div class="text-center mt-4">
+                <button type="submit" class="btn btn-success btn-custom me-3">
+                    <i class="fas fa-check-circle me-2"></i> Check Hygiene
+                </button>
+                <a href="{{ url_for('logout') }}" class="btn btn-danger btn-custom">
+                    <i class="fas fa-sign-out-alt me-2"></i> Logout
+                </a>
+            </div>
+        </form>
+
+        {% if uploaded_image %}
+        <!-- Prediction Result -->
+        <div class="prediction-box mt-5">
+            <h4 class="text-center mb-4"><i class="fas fa-search me-2"></i> Prediction Result</h4>
+            
+            <div class="row align-items-center">
+                <div class="col-md-6 text-center">
+                    <img src="{{ uploaded_image }}" class="prediction-image img-fluid">
+                </div>
+                <div class="col-md-6">
+                    <div class="text-center text-md-start">
+                        <h3>Prediction: <span class="badge prediction-badge bg-info text-dark">{{ prediction }}</span></h3>
+                        <h5 class="mt-3">Confidence: {{ confidence }}%</h5>
+                        
+                        <div class="confidence-meter mt-2">
+                            <div class="confidence-fill" style="width: {{ confidence }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-6">
+                    <h5 class="text-success"><i class="fas fa-clipboard-check me-2"></i> Questionnaire Summary</h5>
+                    <ul class="list-group">
+                        {% for key, value in questionnaire.items() %}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>{{ key.replace('_',' ').title() }}</span>
+                                <strong class="{% if value == 'Yes' or value == 'Good' %}text-success{% elif value == 'No' or value == 'Poor' %}text-danger{% else %}text-warning{% endif %}">
+                                    {{ value }}
+                                </strong>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                
+                {% if probs %}
+                <div class="col-md-6">
+                    <h5 class="text-warning"><i class="fas fa-chart-pie me-2"></i> Class Probabilities</h5>
+                    <ul class="list-group">
+                        {% for label, prob in probs.items() %}
+                            <li class="list-group-item d-flex justify-content-between">
+                                <span>{{ label }}</span>
+                                <strong>{{ prob }}%</strong>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    
+                    <div class="progress-bar mt-3">
+                        <div class="progress-fill" style="width: {{ probs.values()|max }}%;"></div>
+                    </div>
+                    <p class="text-center small text-muted">Highest probability: {{ probs.values()|max }}%</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Webcam Script -->
+<script>
+    const video = document.getElementById('video');
+    const canvas = document.getElementById('canvas');
+    const snap = document.getElementById('snap');
+    const webcamInput = document.getElementById('webcam_image');
+
+    // Access webcam
+    navigator.mediaDevices.getUserMedia({ video: true })
+        .then(stream => { 
+            video.srcObject = stream; 
+        })
+        .catch(err => { 
+            console.error("Error accessing webcam: ", err);
+            document.querySelector('.webcam-box').innerHTML = '<p class="text-danger">Webcam access denied or not available.</p>';
+        });
+
+    // Capture image
+    snap.addEventListener('click', () => {
+        const context = canvas.getContext('2d');
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        webcamInput.value = canvas.toDataURL('image/png');
+        
+        // Show success message with animation
+        const originalText = snap.innerHTML;
+        snap.innerHTML = '<i class="fas fa-check me-1"></i> Captured!';
+        snap.classList.remove('btn-primary');
+        snap.classList.add('btn-success');
+        
+        setTimeout(() => {
+            snap.innerHTML = originalText;
+            snap.classList.remove('btn-success');
+            snap.classList.add('btn-primary');
+        }, 2000);
+    });
+
+    // Update file name display
+    function updateFileName(input) {
+        const fileNameDisplay = document.getElementById('fileName');
+        if (input.files.length > 0) {
+            fileNameDisplay.innerHTML = `<i class="fas fa-file-image me-1"></i> Selected: ${input.files[0].name}`;
+        } else {
+            fileNameDisplay.innerHTML = '';
+        }
+    }
+
+    // Add animation to form submission
+    document.getElementById('hygieneForm').addEventListener('submit', function(e) {
+        const submitBtn = this.querySelector('button[type="submit"]');
+        const originalText = submitBtn.innerHTML;
+        
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i> Analyzing...';
+        submitBtn.disabled = true;
+        
+        // Re-enable after 3 seconds (in case of error)
+        setTimeout(() => {
+            submitBtn.innerHTML = originalText;
+            submitBtn.disabled = false;
+        }, 3000);
+    });
+</script>
+</body>
+</html>

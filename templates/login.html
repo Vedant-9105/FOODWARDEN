@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Roadside Food Hygiene Checker</title>
+  
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    /* ===== GENERAL STYLES ===== */
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+    body { 
+      font-family: 'Poppins', sans-serif; 
+      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+      overflow-x: hidden;
+      color: #333;
+    }
+
+    /* ===== NAVBAR ===== */
+    .navbar {
+      background: rgba(19, 25, 33, 0.95);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 15px 40px;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      backdrop-filter: blur(10px);
+    }
+    .logo {
+      font-size: 26px;
+      font-weight: 800;
+      color: #ff9900;
+      animation: fadeIn 1s ease-in-out;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      font-size: 16px;
+    }
+    .nav-links a {
+      color: #fff;
+      text-decoration: none;
+      transition: all 0.3s;
+      position: relative;
+      font-weight: 500;
+    }
+    .nav-links a::after {
+      content: '';
+      position: absolute;
+      width: 0;
+      height: 2px;
+      bottom: -5px;
+      left: 0;
+      background-color: #ff9900;
+      transition: width 0.3s ease;
+    }
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+    .nav-links a:hover {
+      color: #ff9900;
+    }
+    .btn-login {
+      background: #ff9900;
+      color: #131921;
+      border: none;
+      border-radius: 25px;
+      padding: 10px 25px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      animation: pulseGlow 2s infinite ease-in-out;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-login:hover {
+      background: #fff;
+      color: #131921;
+      transform: scale(1.05) translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 153, 0, 0.4);
+      animation: none;
+    }
+
+    /* ===== HERO SECTION ===== */
+    .hero {
+      background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.7)), 
+                  url("https://images.unsplash.com/photo-1551782450-a2132b4ba21d?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1769&q=80") 
+                  no-repeat center center/cover;
+      height: 90vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, transparent 10%, rgba(0,0,0,0.8) 100%);
+    }
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      animation: fadeInDown 1s ease-out;
+      max-width: 800px;
+      padding: 0 20px;
+    }
+    .hero h1 {
+      font-size: 3.5rem;
+      font-weight: 800;
+      line-height: 1.2;
+      margin-bottom: 20px;
+      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+    }
+    .hero p {
+      font-size: 1.25rem;
+      font-weight: 400;
+      margin-bottom: 30px;
+    }
+    .hero-btn {
+      background: #ff9900;
+      color: #131921;
+      border: none;
+      border-radius: 30px;
+      padding: 12px 30px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      animation: pulse 2s infinite;
+    }
+    .hero-btn:hover {
+      background: #fff;
+      transform: translateY(-3px);
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+
+    /* ===== CONTENT SECTIONS ===== */
+    .section {
+      max-width: 1200px;
+      margin: 80px auto;
+      padding: 0 20px;
+    }
+    .section h2 {
+      text-align: center;
+      margin-bottom: 50px;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #131921;
+      position: relative;
+    }
+    .section h2::after {
+        content: '';
+        display: block;
+        width: 80px;
+        height: 5px;
+        background: linear-gradient(to right, #ff9900, #ffcc00);
+        margin: 15px auto 0;
+        border-radius: 3px;
+    }
+
+    /* ===== INFO CARDS ===== */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+    .card {
+      background: #fff;
+      border-radius: 15px;
+      padding: 30px;
+      border: none;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      text-align: center;
+      transition: all 0.4s ease;
+      opacity: 0;
+      transform: translateY(50px);
+      position: relative;
+      overflow: hidden;
+    }
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 0;
+      background: linear-gradient(to bottom, #ff9900, #ffcc00);
+      transition: height 0.5s ease;
+    }
+    .card:hover::before {
+      height: 100%;
+    }
+    .card.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    .card:hover {
+      transform: translateY(-15px) scale(1.03);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.15);
+    }
+    .card img {
+      max-width: 90px;
+      margin-bottom: 25px;
+      transition: transform 0.5s ease;
+    }
+    .card:hover img {
+      transform: scale(1.1) rotate(5deg);
+    }
+    .card h3 {
+      margin-bottom: 15px;
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #131921;
+      position: relative;
+      z-index: 1;
+    }
+    .card p {
+      font-size: 1rem;
+      color: #555;
+      line-height: 1.7;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ===== ABOUT SECTION ===== */
+    .about-text {
+        text-align:center; 
+        max-width:800px; 
+        margin:auto; 
+        color:#555; 
+        font-size:1.1rem; 
+        line-height: 1.8;
+        padding: 20px;
+        background: #fff;
+        border-radius: 15px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        position: relative;
+        overflow: hidden;
+    }
+    .about-text::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(to right, #ff9900, #ffcc00);
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: #131921;
+      color: #ccc;
+      text-align: center;
+      padding: 40px 20px;
+      margin-top: 80px;
+      position: relative;
+    }
+    footer::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(to right, #ff9900, #ffcc00);
+    }
+    footer a {
+      color: #ffcc00;
+      margin: 0 15px;
+      font-size: 1rem;
+      text-decoration: none;
+      transition: color 0.3s;
+      font-weight: 500;
+    }
+    footer a:hover {
+      color: #ff9900;
+      text-decoration: underline;
+    }
+    footer p {
+      margin-bottom: 15px;
+      font-size: 0.9rem;
+    }
+    .social-icons {
+      margin-top: 20px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    .social-icons a {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+      transition: all 0.3s ease;
+    }
+    .social-icons a:hover {
+      background: #ff9900;
+      transform: translateY(-3px);
+    }
+
+    /* ===== KEYFRAME ANIMATIONS ===== */
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 0 5px #ff9900; }
+      50% { box-shadow: 0 0 20px #ff9900, 0 0 30px #ff9900; }
+      100% { box-shadow: 0 0 5px #ff9900; }
+    }
+    @keyframes pulse {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+      100% { transform: scale(1); }
+    }
+    @keyframes slideInLeft {
+      from { transform: translateX(-100px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideInRight {
+      from { transform: translateX(100px); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+
+    /* ===== LOGIN MODAL CUSTOMIZATION ===== */
+    .modal-content {
+      border-radius: 15px;
+      border: none;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    .modal-header {
+      background: linear-gradient(to right, #ff9900, #ffcc00);
+      border-top-left-radius: 15px;
+      border-top-right-radius: 15px;
+      border-bottom: none;
+      padding: 20px;
+    }
+    .modal-title {
+      color: #131921;
+      font-weight: 700;
+      font-size: 1.5rem;
+    }
+    .btn-custom-login {
+      background: linear-gradient(to right, #ff9900, #ffcc00);
+      border: none;
+      border-radius: 30px;
+      padding: 12px 20px;
+      font-weight: 600;
+      width: 100%;
+      color: #131921;
+      transition: all 0.3s ease;
+      margin-top: 10px;
+    }
+    .btn-custom-login:hover {
+      background: linear-gradient(to right, #131921, #2a3a52);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    /* ===== RESPONSIVE DESIGN ===== */
+    @media (max-width: 768px) {
+      .navbar {
+        padding: 12px 20px;
+      }
+      .nav-links {
+        gap: 15px;
+      }
+      .hero h1 {
+        font-size: 2.5rem;
+      }
+      .hero p {
+        font-size: 1rem;
+      }
+      .section h2 {
+        font-size: 2rem;
+      }
+      .card {
+        padding: 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="navbar">
+    <div class="logo">
+      <i class="fas fa-utensils"></i> FoodWarden
+    </div>
+    <div class="nav-links">
+      <a href="#">Home</a>
+      <a href="#features">Features</a>
+      <a href="#working">How It Works</a>
+      <a href="#about">About</a>
+      <button class="btn-login" data-bs-toggle="modal" data-bs-target="#loginModal">
+        <i class="fas fa-sign-in-alt"></i> Login
+      </button>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <div class="hero-content">
+      <h1>AI-Powered Roadside Food Hygiene Checker</h1>
+      <p>Ensuring safer street food with cutting-edge artificial intelligence technology.</p>
+      <button class="hero-btn" id="getStartedBtn">Check Where You Eat <i class="fas fa-arrow-right"></i></button>
+    </div>
+  </header>
+
+  <section class="section" id="features">
+    <h2>Key Features</h2>
+    <div class="cards">
+      <div class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/5028/5028445.png" alt="AI Detection Icon">
+        <h3>AI-Powered Detection</h3>
+        <p>Scans stalls using advanced computer vision to identify hygiene issues instantly and accurately.</p>
+      </div>
+      <div class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/9093/9093148.png" alt="Scoring Icon">
+        <h3>Smart Hygiene Scoring</h3>
+        <p>Generates an intuitive cleanliness score based on multiple factors, categorized for easy understanding.</p>
+      </div>
+      <div class="card">
+        <img src="https://cdn-icons-png.flaticon.com/512/3891/3891468.png" alt="Reports Icon">
+        <h3>Instant Reports</h3>
+        <p>Download and share detailed reports to raise awareness among vendors and empower customers.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="working">
+    <h2>How It Works</h2>
+    <div class="cards">
+      <div class="card">
+        <div style="font-size: 3rem; color: #ff9900; margin-bottom: 20px;">
+          <i class="fas fa-camera"></i>
+        </div>
+        <h3>1. Capture</h3>
+        <p>Simply take a photo or a short video of the food stall using your mobile device.</p>
+      </div>
+      <div class="card">
+        <div style="font-size: 3rem; color: #ff9900; margin-bottom: 20px;">
+          <i class="fas fa-brain"></i>
+        </div>
+        <h3>2. AI Analysis</h3>
+        <p>Our powerful AI model analyzes the footage in real-time for critical hygiene factors.</p>
+      </div>
+      <div class="card">
+        <div style="font-size: 3rem; color: #ff9900; margin-bottom: 20px;">
+          <i class="fas fa-chart-line"></i>
+        </div>
+        <h3>3. Get Results</h3>
+        <p>Receive a comprehensive hygiene score with actionable suggestions for improvements.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" id="about">
+    <h2>About This Project</h2>
+    <p class="about-text">
+      The AI Roadside Food Hygiene Checker is an innovative project that combines <b>robotics, AI, and computer vision</b> to make street food safer for everyone. 
+      It's designed to automatically detect unhygienic practices, score cleanliness, and spread awareness for better public health. 
+      Our mission is simple: <b>empowering safe food choices through technology</b>.
+    </p>
+  </section>
+
+  <footer>
+    <p>
+      <a href="#">Privacy Policy</a> | 
+      <a href="#">Contact</a> | 
+      <a href="#">Dashboard</a>
+    </p>
+    <div class="social-icons">
+      <a href="https://www.facebook.com/"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://x.com/"><i class="fab fa-twitter"></i></a>
+      <a href="https://www.instagram.com/"><i class="fab fa-instagram"></i></a>
+      <a href="https://www.linkedin.com/posts/vedant-sawant-47087135a_artificialintelligence-publichealth-foodindustry-activity-7406037775252406272-9cmK?utm_source=share&utm_medium=member_desktop&rcm=ACoAAFl5AFQBK5NxJYCKjTGv4MwPQPlh4qECvzg"><i class="fab fa-linkedin-in"></i></a>
+    </div>
+    <p>© 2025 AI Roadside Food Hygiene Checker | Built with Technology for Safe Food</p>
+  </footer>
+
+  <div class="modal fade" id="loginModal" tabindex="-1" aria-labelledby="loginModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="loginModalLabel">Welcome Back!</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body p-4">
+          <p class="text-center text-muted mb-4">Please enter your credentials to continue.</p>
+          <form method="POST" action="{{ url_for('login') }}">
+            <div class="mb-3">
+              <label class="form-label fw-bold">Username</label>
+              <input type="text" name="username" class="form-control" placeholder="Enter username" required>
+            </div>
+            <div class="mb-4">
+              <label class="form-label fw-bold">Password</label>
+              <div class="input-group">
+                <input type="password" name="password" id="password" class="form-control" placeholder="Enter password" required>
+                <button type="button" class="btn btn-outline-secondary" onclick="togglePassword()">
+                  <i class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+            <div class="text-center">
+              <button type="submit" class="btn btn-custom-login">Login</button>
+            </div>
+          </form>
+          <p class="text-center mt-4">
+            Don't have an account? <a href="{{ url_for('register') }}" class="text-decoration-none" style="color: #ff9900; font-weight: 600;">Register here</a>
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  
+  <script>
+    function togglePassword() {
+      let pwd = document.getElementById("password");
+      let eyeIcon = pwd.nextElementSibling.querySelector('i');
+      
+      if (pwd.type === "password") {
+        pwd.type = "text";
+        eyeIcon.className = "fas fa-eye-slash";
+      } else {
+        pwd.type = "password";
+        eyeIcon.className = "fas fa-eye";
+      }
+    }
+
+    // Redirect Get Started button to login modal
+    document.getElementById('getStartedBtn').addEventListener('click', function() {
+      // Close any open modals first
+      var existingModal = bootstrap.Modal.getInstance(document.getElementById('loginModal'));
+      if (existingModal) {
+        existingModal.hide();
+      }
+      
+      // Show login modal
+      var loginModal = new bootstrap.Modal(document.getElementById('loginModal'));
+      loginModal.show();
+    });
+
+    document.addEventListener("DOMContentLoaded", function() {
+      const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      }, {
+        threshold: 0.15
+      });
+
+      const cards = document.querySelectorAll('.card');
+      cards.forEach(card => {
+        observer.observe(card);
+      });
+
+      // Add floating animation to hero elements
+      const heroContent = document.querySelector('.hero-content');
+      if (heroContent) {
+        heroContent.style.animation = 'fadeInDown 1s ease-out, float 6s infinite ease-in-out';
+      }
+    });
+  </script>
+
+</body>
+</html>

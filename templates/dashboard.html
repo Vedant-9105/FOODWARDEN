@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hygiene Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Animation */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Main Container */
+        .container {
+            width: 100%;
+            max-width: 1200px;
+            animation: fadeIn 0.8s ease-in-out;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            font-size: 2.5em;
+            color: #1a2a4c;
+            font-weight: 700;
+        }
+
+        .btn-back {
+            background-color: #4a69bd;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.3s, transform 0.3s;
+        }
+
+        .btn-back:hover {
+            background-color: #3b528f;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+
+        /* Card Styling */
+        .card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            padding: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* Chart Container */
+        .chart-container {
+            width: 100%;
+            max-width: 450px;
+            margin: 0 auto;
+        }
+
+        h3 {
+            font-size: 1.8em;
+            color: #1a2a4c;
+            border-bottom: 3px solid #4a69bd;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+
+        /* Table Styling */
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            color: #3b528f;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        tr {
+            transition: background-color 0.3s ease;
+        }
+
+        tr:hover {
+            background-color: #f1f5f9;
+        }
+
+        img {
+            max-width: 80px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+        
+        img:hover {
+            transform: scale(1.1);
+        }
+
+        /* Class Badges */
+        .badge {
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-weight: 600;
+            color: white;
+            font-size: 0.85em;
+        }
+        .badge-good { background-color: #28a745; }
+        .badge-moderate { background-color: #ffc107; color: #333; }
+        .badge-poor { background-color: #dc3545; }
+
+        /* Filter Tabs */
+        .filter-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #e0e0e0;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            font-weight: 600;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s ease;
+            margin-right: 5px;
+        }
+
+        .filter-tab.active {
+            border-bottom: 3px solid #4a69bd;
+            color: #4a69bd;
+        }
+
+        .filter-tab:hover {
+            background-color: #f8f9fa;
+        }
+
+        /* Hidden rows */
+        .report-row {
+            display: table-row;
+        }
+        
+        .report-row.hidden {
+            display: none;
+        }
+
+        .count-badge {
+            background: #4a69bd;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 0.8em;
+            margin-left: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h2>📊 Food Hygiene Dashboard</h2>
+            <a href="{{ url_for('index') }}" class="btn-back">⬅️ Back to Home</a>
+        </header>
+
+        <div class="card">
+            <div class="chart-container">
+                <canvas id="hygieneChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>📝 Hygiene Reports</h3>
+            
+            <!-- Filter Tabs -->
+            <div class="filter-tabs">
+                <div class="filter-tab active" data-filter="all">
+                    All Reports <span class="count-badge">{{ reports|length }}</span>
+                </div>
+                <div class="filter-tab" data-filter="Good">
+                    Good <span class="count-badge">{{ good_count }}</span>
+                </div>
+                <div class="filter-tab" data-filter="Moderate">
+                    Moderate <span class="count-badge">{{ moderate_count }}</span>
+                </div>
+                <div class="filter-tab" data-filter="Poor">
+                    Poor <span class="count-badge">{{ poor_count }}</span>
+                </div>
+            </div>
+
+            <div class="table-container">
+                <table id="reportsTable">
+                    <thead>
+                        <tr>
+                            <th>Shop Name</th>
+                            <th>Address</th>
+                            <th>City</th>
+                            <th>Class</th>
+                            <th>Score (%)</th>
+                            <th>Image</th>
+                            <th>Timestamp</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for report in reports %}
+                        <tr class="report-row" data-hygiene-class="{{ report.hygiene_class }}">
+                            <td>{{ report.shop_name }}</td>
+                            <td>{{ report.shop_address }}</td>
+                            <td>{{ report.city }}</td>
+                            <td>
+                                {% if report.hygiene_class == 'Good' %}
+                                    <span class="badge badge-good">Good</span>
+                                {% elif report.hygiene_class == 'Moderate' %}
+                                    <span class="badge badge-moderate">Moderate</span>
+                                {% else %}
+                                    <span class="badge badge-poor">Poor</span>
+                                {% endif %}
+                            </td>
+                            <td><b>{{ report.score|round(2) }}</b></td>
+                            <td>
+                                {% if report.uploaded_image %}
+                                    <img src="{{ report.uploaded_image }}" alt="Uploaded Image">
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </td>
+                            <td>{{ report.timestamp }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Chart initialization
+        const ctx = document.getElementById('hygieneChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'pie',
+            data: {
+                labels: ['Good', 'Moderate', 'Poor'],
+                datasets: [{
+                    label: 'Hygiene Status',
+                    data: [{{ good_count }}, {{ moderate_count }}, {{ poor_count }}],
+                    backgroundColor: [
+                        'rgba(40, 167, 69, 0.8)',
+                        'rgba(255, 193, 7, 0.8)',
+                        'rgba(220, 53, 69, 0.8)'
+                    ],
+                    borderColor: [
+                        'rgba(40, 167, 69, 1)',
+                        'rgba(255, 193, 7, 1)',
+                        'rgba(220, 53, 69, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        labels: {
+                            font: {
+                                size: 14,
+                                family: "'Poppins', sans-serif"
+                            }
+                        }
+                    },
+                    title: {
+                        display: true,
+                        text: 'Hygiene Class Distribution',
+                        font: {
+                            size: 18,
+                            family: "'Poppins', sans-serif"
+                        }
+                    }
+                }
+            }
+        });
+
+        // Tab filtering functionality
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                // Remove active class from all tabs
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                tab.classList.add('active');
+                
+                // Get the filter value
+                const filterValue = tab.getAttribute('data-filter');
+                
+                // Show/hide rows based on filter
+                const allRows = document.querySelectorAll('.report-row');
+                allRows.forEach(row => {
+                    if (filterValue === 'all') {
+                        row.classList.remove('hidden');
+                    } else {
+                        if (row.getAttribute('data-hygiene-class') === filterValue) {
+                            row.classList.remove('hidden');
+                        } else {
+                            row.classList.add('hidden');
+                        }
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
